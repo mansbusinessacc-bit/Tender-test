@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tender Club — запись на встречу</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#0A1422;
+    --navy:#0F1D33;
+    --navy-card:#142944;
+    --orange:#FF7A1A;
+    --orange-soft:#FFB174;
+    --line:#22364F;
+    --text:#F4F6F9;
+    --text-dim:#9FB0C6;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--navy-deep);
+    color:var(--text);
+    font-family:'Manrope',sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* ambient backdrop arcs */
+  .bg-arcs{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 78% 20%, rgba(255,122,26,0.14), transparent 38%),
+      radial-gradient(circle at 15% 85%, rgba(255,122,26,0.08), transparent 42%);
+  }
+  .bg-arcs svg{position:absolute; right:-10%; top:-10%; opacity:0.35; width:70vw; height:auto;}
+
+  .screen{
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:32px 20px;
+  }
+  .screen.active{display:flex;}
+
+  /* ---------- SCREEN 1 : FORM ---------- */
+  .form-wrap{
+    width:100%; max-width:1180px;
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+    border:1px solid var(--line);
+    border-radius:28px;
+    padding:56px;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:48px;
+    align-items:center;
+    box-shadow:0 40px 80px -30px rgba(0,0,0,0.6);
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--orange-soft);
+    border:1px solid rgba(255,122,26,0.35);
+    background:rgba(255,122,26,0.08);
+    padding:7px 14px; border-radius:100px;
+    margin-bottom:22px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 4px rgba(255,122,26,0.18);}
+  h1.headline{
+    font-family:'Unbounded',sans-serif;
+    font-weight:800;
+    font-size:clamp(30px, 3.6vw, 46px);
+    line-height:1.12;
+    letter-spacing:-0.01em;
+    text-transform:uppercase;
+  }
+  h1.headline .accent{color:var(--orange);}
+  .sub{
+    margin-top:18px;
+    color:var(--text-dim);
+    font-size:16.5px;
+    line-height:1.55;
+    max-width:480px;
+  }
+  .magnet-row{
+    margin-top:34px;
+    display:flex; gap:16px; align-items:center;
+  }
+  .magnet-thumbs{display:flex; gap:10px;}
+  .thumb{
+    width:64px; height:88px; border-radius:10px;
+    border:1.5px solid var(--orange);
+    background:linear-gradient(160deg, #1B3454, #0F1D33);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+    flex-shrink:0;
+  }
+  .magnet-text{font-size:14.5px; color:var(--text); line-height:1.45;}
+  .magnet-text b{color:var(--orange-soft);}
+
+  .card{
+    background:var(--navy-card);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:36px;
+  }
+  .field{
+    width:100%;
+    background:var(--white);
+    color:#0F1D33;
+    border:none;
+    border-radius:14px;
+    padding:17px 18px;
+    font-size:15.5px;
+    font-family:'Manrope',sans-serif;
+    font-weight:600;
+    margin-bottom:14px;
+    outline:none;
+    transition:box-shadow .15s ease;
+  }
+  .field::placeholder{color:#7C8A9C; font-weight:500;}
+  .field:focus{box-shadow:0 0 0 3px rgba(255,122,26,0.45);}
+  select.field{appearance:none; -webkit-appearance:none; cursor:pointer;}
+
+  .consent{
+    display:flex; gap:10px; align-items:flex-start;
+    font-size:12.5px; color:var(--text-dim); line-height:1.5;
+    margin:16px 0 20px;
+  }
+  .consent input{margin-top:3px; accent-color:var(--orange); width:16px; height:16px; flex-shrink:0;}
+  .consent a{color:var(--orange-soft); text-decoration:underline;}
+
+  .btn-cta{
+    width:100%;
+    background:var(--orange);
+    color:#1A0E00;
+    border:none;
+    border-radius:14px;
+    padding:18px 20px;
+    font-family:'Manrope',sans-serif;
+    font-weight:800;
+    font-size:15.5px;
+    letter-spacing:.01em;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    cursor:pointer;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .btn-cta:hover{background:var(--orange-soft); transform:translateY(-1px);}
+  .btn-cta:active{transform:translateY(0px);}
+  .err{color:#FF8A8A; font-size:12.5px; margin-top:-6px; margin-bottom:10px; display:none;}
+
+  /* ---------- SCREEN 2 : REDIRECT ---------- */
+  .redirect-wrap{
+    text-align:center;
+    max-width:640px;
+  }
+  .redirect-wrap h2{
+    font-family:'Unbounded',sans-serif;
+    font-weight:800;
+    font-size:clamp(24px, 3.4vw, 36px);
+    line-height:1.25;
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  .redirect-wrap p{
+    color:var(--text-dim);
+    font-size:16px;
+    line-height:1.6;
+  }
+  .redirect-wrap p b{color:var(--orange-soft);}
+  .timer{
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    font-size:54px;
+    color:var(--orange);
+    margin:30px 0;
+    letter-spacing:.04em;
+  }
+  .progress-track{
+    width:100%; max-width:420px; height:8px;
+    background:var(--navy-card);
+    border:1px solid var(--line);
+    border-radius:100px;
+    margin:0 auto;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%; width:0%;
+    background:linear-gradient(90deg, var(--orange), var(--orange-soft));
+    border-radius:100px;
+    transition:width .1s linear;
+  }
+
+  /* ---------- SCREEN 3 : WHATSAPP INVITE MOCKUP ---------- */
+  .wa-card{
+    background:var(--white);
+    color:#111B21;
+    border-radius:20px;
+    width:100%; max-width:380px;
+    padding:36px 28px 28px;
+    text-align:center;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,0.55);
+  }
+  .wa-avatar{
+    width:96px; height:96px; border-radius:50%;
+    margin:0 auto 18px;
+    background:linear-gradient(160deg, var(--navy), var(--navy-deep));
+    border:3px solid var(--orange);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--orange-soft);
+    font-family:'Unbounded',sans-serif;
+    font-weight:800; font-size:11px; line-height:1.3; text-transform:uppercase;
+    padding:6px;
+  }
+  .wa-card h3{font-size:18px; font-weight:700; margin-bottom:4px;}
+  .wa-card .wa-sub{font-size:14px; color:#54656F; margin-bottom:26px;}
+  .wa-btn{
+    width:100%;
+    border-radius:24px;
+    padding:13px 18px;
+    font-weight:600;
+    font-size:15px;
+    margin-bottom:10px;
+    cursor:pointer;
+    border:1.5px solid #D1D7DB;
+    background:#fff;
+    color:#111B21;
+    text-decoration:none;
+    display:block;
+  }
+  .wa-btn.primary{
+    background:#25D366;
+    border-color:#25D366;
+    color:#fff;
+  }
+  .wa-foot{
+    margin-top:18px;
+    font-size:12.5px;
+    color:#54656F;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .wa-foot a{color:#008069; text-decoration:underline; font-weight:600;}
+
+  .beta-tag{
+    position:fixed; top:16px; left:16px; z-index:5;
+    font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--orange-soft);
+    background:rgba(255,122,26,0.12);
+    border:1px solid rgba(255,122,26,0.4);
+    padding:6px 12px; border-radius:100px;
+  }
+
+  @media (max-width:860px){
+    .form-wrap{grid-template-columns:1fr; padding:32px 24px;}
+    .magnet-row{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+
+<div class="beta-tag">⚡ Бета — заглушка, ссылку на WA-группу нужно подставить</div>
+<div class="bg-arcs"></div>
+
+<!-- SCREEN 1: FORM -->
+<section class="screen active" id="screen-form">
+  <div class="form-wrap">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> Tender Club · Астана</div>
+      <h1 class="headline">Для записи на <span class="accent">очную встречу</span> введите свои данные</h1>
+      <p class="sub">Живое наставничество по тендерам и госзакупкам РК — без онлайн-курсов и видео в записи.</p>
+
+      <div class="magnet-row">
+        <div class="magnet-thumbs">
+          <div class="thumb">📋</div>
+          <div class="thumb">📄</div>
+        </div>
+        <div class="magnet-text">Займи место и забери в подарок<br><b>чек-лист «5 ошибок новичка в тендерах»</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <input class="field" type="text" id="f-name" placeholder="Ваше имя">
+      <input class="field" type="tel" id="f-phone" placeholder="+7 (___) ___-__-__">
+      <select class="field" id="f-city">
+        <option value="" disabled selected>Ваш город</option>
+        <option>Астана</option>
+        <option>Готов(а) приехать из другого города</option>
+      </select>
+      <div class="err" id="f-error">Заполните имя и телефон</div>
+
+      <label class="consent">
+        <input type="checkbox" id="f-consent">
+        Я согласен(на) с <a href="#">политикой конфиденциальности</a> и <a href="#">публичной офертой</a>
+      </label>
+
+      <button class="btn-cta" onclick="submitForm()">Перейти в группу обучения →</button>
+    </div>
+  </div>
+</section>
+
+<!-- SCREEN 2: REDIRECT -->
+<section class="screen" id="screen-redirect">
+  <div class="redirect-wrap">
+    <h2>Сейчас вы будете перенаправлены<br>в сообщество участников в WhatsApp</h2>
+    <p>В описании сообщества вас ждёт подарок<br><b>«Чек-лист: 5 ошибок новичка в тендерах»</b></p>
+    <div class="timer" id="timer">3</div>
+    <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
+  </div>
+</section>
+
+<!-- SCREEN 3: WHATSAPP INVITE MOCKUP -->
+<section class="screen" id="screen-invite">
+  <div class="wa-card">
+    <div class="wa-avatar">Tender<br>Club</div>
+    <h3 id="wa-title">Бесплатная встреча по тендерам</h3>
+    <div class="wa-sub">Приглашение в групповой чат</div>
+
+    <!-- ⚠️ ЗАМЕНИТЬ href на реальную wa.me-ссылку группы, когда она будет создана -->
+    <a class="wa-btn primary" href="#" id="wa-open-app">Открыть приложение</a>
+    <a class="wa-btn" href="#" id="wa-open-web">Продолжить в WhatsApp Web</a>
+
+    <div class="wa-foot">
+      <span>📱</span> У вас нет приложения? <a href="#">Скачайте его сейчас</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function submitForm(){
+    const name = document.getElementById('f-name').value.trim();
+    const phone = document.getElementById('f-phone').value.trim();
+    const consent = document.getElementById('f-consent').checked;
+    const err = document.getElementById('f-error');
+
+    if(!name || !phone || !consent){
+      err.style.display = 'block';
+      err.textContent = !consent ? 'Подтвердите согласие с политикой конфиденциальности' : 'Заполните имя и телефон';
+      return;
+    }
+    err.style.display = 'none';
+
+    // TODO: здесь в боевой версии — отправка данных в CRM/таблицу лидов
+    console.log('Новая заявка:', {name, phone, city: document.getElementById('f-city').value});
+
+    showScreen('screen-redirect');
+    startCountdown();
+  }
+
+  function startCountdown(){
+    let seconds = 3;
+    const timerEl = document.getElementById('timer');
+    const progressEl = document.getElementById('progress');
+    timerEl.textContent = seconds;
+    progressEl.style.width = '0%';
+
+    const totalMs = 3000;
+    const start = Date.now();
+
+    const interval = setInterval(()=>{
+      const elapsed = Date.now() - start;
+      const pct = Math.min(100, (elapsed/totalMs)*100);
+      progressEl.style.width = pct + '%';
+
+      const remaining = Math.ceil((totalMs - elapsed)/1000);
+      timerEl.textContent = Math.max(0, remaining);
+
+      if(elapsed >= totalMs){
+        clearInterval(interval);
+        showScreen('screen-invite');
+        // Автопопытка открыть WA — раскомментировать и подставить реальную ссылку:
+        // window.location.href = 'https://wa.me/77XXXXXXXXX?text=...';
+      }
+    }, 50);
+  }
+
+  // ⚠️ Подставить реальную ссылку, когда группа будет создана
+  const WA_LINK_PLACEHOLDER = '#'; // например: 'https://chat.whatsapp.com/XXXXXXXXXXXX'
+  document.getElementById('wa-open-app').href = WA_LINK_PLACEHOLDER;
+  document.getElementById('wa-open-web').href = WA_LINK_PLACEHOLDER;
+</script>
+
+</body>
+</html>
